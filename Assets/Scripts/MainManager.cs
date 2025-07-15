@@ -10,6 +10,9 @@ public class MainManager : MonoBehaviour
     public int LineCount = 6;
     public Rigidbody Ball;
 
+    public string playerName;
+    public string highscoreHolder;
+    public Text HighscoreText;
     public Text ScoreText;
     public GameObject GameOverText;
     
@@ -18,7 +21,7 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +39,21 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        int tempscore = 0;
+        if(MenuManager.Instance != null)
+        {
+            playerName = MenuManager.Instance.playerName;
+            highscoreHolder = MenuManager.Instance.highscoreHolder;
+        }
+        else { playerName = ""; }
+
+        if (MenuManager.Instance.highscore > 0)
+        {
+            tempscore = MenuManager.Instance.highscore;
+            HighscoreText.text = $"Best Score : {highscoreHolder} : {tempscore}";
+        }
+
     }
 
     private void Update()
@@ -72,5 +90,21 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+
+        if (MenuManager.Instance != null)
+        {
+            if (m_Points > MenuManager.Instance.highscore)
+            {
+                UpdateHighScore();
+            }
+        }
+    }
+
+    public void UpdateHighScore()
+    {
+        MenuManager.Instance.highscore = m_Points;
+        MenuManager.Instance.highscoreHolder = playerName;
+        HighscoreText.text = $"Best Score : {playerName} : {m_Points}";
+        MenuManager.Instance.SaveHighscores();
     }
 }
